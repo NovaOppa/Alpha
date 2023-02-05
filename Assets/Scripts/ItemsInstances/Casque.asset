@@ -10,11 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cc0c810d0b073b64e83a6da1e2c11cfa, type: 3}
-  m_Name: Stone
+  m_Name: Casque
   m_EditorClassIdentifier: 
-  name: Stone
-  description: c'est une pierre mon frr
-  visual: {fileID: 21300000, guid: f7111abcf951a1f4398426869d06640b, type: 3}
-  prefab: {fileID: 4414079250755393900, guid: 13fcd97a9dfc3cf4c9b93556bfa7484e, type: 3}
-  itemType: 0
-  stackable: 1
+  name: Casque
+  description: 'C''est un Casque !! '
+  visual: {fileID: 21300000, guid: 358541a3db89a6f45956a5d4726d7312, type: 3}
+  prefab: {fileID: 4210145469533000786, guid: c208c3553721a51438ad9c29c49661b9, type: 3}
+  itemType: 1

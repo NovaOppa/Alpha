@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PickupItem : MonoBehaviour
 {
@@ -9,15 +10,22 @@ public class PickupItem : MonoBehaviour
 
     public PickupBehaviour playerPickupBehaviour;
 
+    [SerializeField]
+    private GameObject pickupText;
+
+    [SerializeField]
+    private LayerMask layerMask;
+
+
     void Update()
     {
         RaycastHit hit;
 
-        if(Physics.Raycast(transform.position, transform.forward, out hit, pickupRange))
+        if(Physics.Raycast(transform.position, transform.forward, out hit, pickupRange, layerMask))
         {
             if(hit.transform.CompareTag("Item"))
             {
-                Debug.Log("Il y a un item devant toi");
+                pickupText.SetActive(true);
 
                 if (Input.GetKeyDown(KeyCode.E))
                 {
@@ -25,6 +33,10 @@ public class PickupItem : MonoBehaviour
                    
                 }
             }
+        }
+        else
+        {
+            pickupText.SetActive(false);
         }
     }
 }

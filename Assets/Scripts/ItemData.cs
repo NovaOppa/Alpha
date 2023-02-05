@@ -6,6 +6,16 @@ using UnityEngine;
 public class ItemData : ScriptableObject
 {
     public string name;
+    public string description; 
     public Sprite visual;
     public GameObject prefab;
+    public ItemType itemType;
+    public bool stackable;
+}
+
+public enum ItemType
+{
+    Ressource,
+    Equipment,
+    Consumable
 }
