@@ -14,9 +14,18 @@ public class PickupBehaviour : MonoBehaviour
     private Inventory inventory;
 
     private Item currentItem;
+    private bool isBusy = false;
 
     public void DoPickup(Item item)
     {
+        if(isBusy)
+        {
+            return;
+        }
+
+        isBusy = true;
+
+
         if(inventory.IsFull())
         {
             Debug.Log("Ton Inventaire est Plein");
@@ -40,5 +49,6 @@ public class PickupBehaviour : MonoBehaviour
     public void ReEnablePlayerMovement()
     {
         playerMoveBehaviour.canMove = true;
+        isBusy = false;
     }
 }

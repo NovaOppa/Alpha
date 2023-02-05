@@ -12,6 +12,7 @@ public class ItemData : ScriptableObject
     public ItemType itemType;
     public EquipmentType equipmentType;
     public bool stackable;
+    public int maxStack;
 }
 
 public enum ItemType

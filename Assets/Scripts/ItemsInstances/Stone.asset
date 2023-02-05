@@ -17,4 +17,6 @@ MonoBehaviour:
   visual: {fileID: 21300000, guid: f7111abcf951a1f4398426869d06640b, type: 3}
   prefab: {fileID: 4414079250755393900, guid: 13fcd97a9dfc3cf4c9b93556bfa7484e, type: 3}
   itemType: 0
+  equipmentType: 0
   stackable: 1
+  maxStack: 2
