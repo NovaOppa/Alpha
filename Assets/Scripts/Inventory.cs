@@ -1,12 +1,21 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using System.Linq;
 
 public class Inventory : MonoBehaviour
 {
-   [Header("Inventory Panel References")]
+
+   [Header("OTHER SCRIPTS REFERENCES")]
+
+    [SerializeField]
+    private Equipment equipment;
+
+    [SerializeField]
+    public ItemActionsSystem itemActionsSystem;
+
+   
+
+
+    [Header("INVENTORY SYSTEM VARIABLES")]
 
     [SerializeField]
     private List<ItemData> content = new List<ItemData>();
@@ -17,81 +26,18 @@ public class Inventory : MonoBehaviour
     [SerializeField]
     private Transform inventorySlotsParent;
 
-    const int InventorySize = 24;
-
-    [SerializeField]
-    private Transform dropPoint;
 
 
-    [Header("Action Panel References")]
-
-    [SerializeField]
-    private GameObject actionPanel;
-
-    [SerializeField]
-    private GameObject useItemButton;
-
-    [SerializeField]
-    private GameObject equipItemButton;
-
-    [SerializeField]
-    private GameObject dropItemButton;
-
-    [SerializeField]
-    private GameObject destroyItemButton;
-
-    private ItemData itemCurrentlySelected;
-
-    [SerializeField]
-    private Sprite emptySlotVisual;
-
-    [Header("Equipment Panel References")]
-    
-    [SerializeField]
-    private EquipmentLibrary equipmentLibrary;
-
-    [SerializeField]
-    private Image headSlotImage;
-
-    [SerializeField]
-    private Image chestSlotImage;
-
-    [SerializeField]
-    private Image handsSlotImage;
-
-    [SerializeField]
-    private Image legsSlotImage;
-
-    [SerializeField]
-    private Image feetSlotImage;
-
-    // Garde une trace des equipements actuels
-    private ItemData equipedHeadItem;
-    private ItemData equipedChestItem;
-    private ItemData equipedHandsItem;
-    private ItemData equipedLegsItem;
-    private ItemData equipedFeetItem;
-
-    [SerializeField]
-    private Button headSlotDesequipButton;
-
-    [SerializeField]
-    private Button chestSlotDesequipButton;
-
-    [SerializeField]
-    private Button handsSlotDesequipButton;
-    
-    [SerializeField]
-    private Button legsSlotDesequipButton;
-
-    [SerializeField]
-    private Button feetSlotDesequipButton;
-
+    public Sprite emptySlotVisual;
 
     public static Inventory instance;
+    
 
+
+    const int InventorySize = 24;
     private bool isOpen = false;
 
+    
     private void Awake()
     {
         instance = this;
@@ -124,6 +70,11 @@ public class Inventory : MonoBehaviour
         RefreshContent();
     }
 
+    public void RemoveItem(ItemData item)
+    {
+        content.Remove(item);
+        RefreshContent();
+    }
 
     private void OpenInventory()
     {
@@ -134,12 +85,12 @@ public class Inventory : MonoBehaviour
     public void CloseInventory()
     {
         inventoryPanel.SetActive(false);
-        actionPanel.SetActive(false);
+        itemActionsSystem.actionPanel.SetActive(false);
         TooltipSystem.instance.Hide();
         isOpen = false;
     }
 
-    private void RefreshContent()
+    public void RefreshContent()
     {
         // On vide tous les slots / visuels
         for (int i = 0; i < inventorySlotsParent.childCount; i++)
@@ -159,7 +110,7 @@ public class Inventory : MonoBehaviour
             currentSlot.itemVisual.sprite = content[i].visual;
         }
 
-        UpdateEquipmentsDesequipButtons();
+        equipment.UpdateEquipmentsDesequipButtons();
     }
 
     public bool IsFull()
@@ -167,247 +118,7 @@ public class Inventory : MonoBehaviour
         return InventorySize == content.Count;
     }
 
-    public void OpenActionPanel(ItemData item)
-    {
-        itemCurrentlySelected = item;
-
-        if(item == null)
-        {
-            actionPanel.SetActive(false);
-            return;
-        }
-
-        switch(item.itemType)
-        {
-            case ItemType.Ressource:
-                useItemButton.SetActive(false);
-                equipItemButton.SetActive(false);
-                break;
-            case ItemType.Equipment:
-                useItemButton.SetActive(false);
-                equipItemButton.SetActive(true);
-                break;
-            case ItemType.Consumable:
-                useItemButton.SetActive(true);
-                equipItemButton.SetActive(false);
-                break;
-        }
-
-       
-        actionPanel.SetActive(true);
-    }
-
-    public void CloseActionPanel()
-    {
-        actionPanel.SetActive(false);
-        itemCurrentlySelected = null;
-    }
-
-    public void UseActionButton()
-    {
-        print("Use item : " + itemCurrentlySelected.name);
-        CloseActionPanel();
-    }
-
-    public void EquipActionButton()
-    {
-        print("Equip item : " + itemCurrentlySelected.name);
-
-        EquipmentLibraryItem equipmentLibraryItem = equipmentLibrary.content.Where(elem => elem.itemData == itemCurrentlySelected).First();
-
-        if(equipmentLibraryItem != null)
-        {
-             switch(itemCurrentlySelected.equipmentType)
-            {
-                case EquipmentType.Head:
-                    DisablePreviousEquipedEquipment(equipedHeadItem);
-                    headSlotImage.sprite = itemCurrentlySelected.visual;
-                    equipedHeadItem = itemCurrentlySelected;
-                    break;
-
-                case EquipmentType.Chest:
-                    DisablePreviousEquipedEquipment(equipedChestItem);
-                    chestSlotImage.sprite = itemCurrentlySelected.visual;
-                    equipedChestItem = itemCurrentlySelected;
-                    break;
-
-                 case EquipmentType.Hands:
-                    DisablePreviousEquipedEquipment(equipedHandsItem);
-                    handsSlotImage.sprite = itemCurrentlySelected.visual;
-                    equipedHandsItem = itemCurrentlySelected;
-                    break;
-
-                case EquipmentType.Legs:
-                    DisablePreviousEquipedEquipment(equipedLegsItem);
-                    legsSlotImage.sprite = itemCurrentlySelected.visual;
-                    equipedLegsItem = itemCurrentlySelected;
-                    break;
-
-                case EquipmentType.Feet:
-                    DisablePreviousEquipedEquipment(equipedFeetItem);
-                    feetSlotImage.sprite = itemCurrentlySelected.visual;
-                    equipedFeetItem = itemCurrentlySelected;
-                    break;
-
-            }
-
-            for (int i = 0; i < equipmentLibraryItem.elementsToDisable.Length; i++)
-        {
-            equipmentLibraryItem.elementsToDisable[i].SetActive(false);
-        }
-
-            equipmentLibraryItem.itemPrefab.SetActive(true);
-            content.Remove(itemCurrentlySelected);
-            RefreshContent();
-
-        }
-        else
-        {
-            Debug.LogError("Equipment : " + itemCurrentlySelected.name + "non existant dans la librarie des equipements");
-        }
-
-        CloseActionPanel();
-    }
-
-    public void DropActionButton()
-    {
-        GameObject instantiatedItem = Instantiate(itemCurrentlySelected.prefab);
-        instantiatedItem.transform.position = dropPoint.position;
-        content.Remove(itemCurrentlySelected);
-        RefreshContent();
-        CloseActionPanel();
-    }
-
-    public void DestroyActionButton()
-    {
-        content.Remove(itemCurrentlySelected);
-        RefreshContent();
-        CloseActionPanel();
-    }
-
-    private void UpdateEquipmentsDesequipButtons()
-    {
-        headSlotDesequipButton.onClick.RemoveAllListeners();
-        headSlotDesequipButton.onClick.AddListener(delegate {DesequipEquipment(EquipmentType.Head); });
-        headSlotDesequipButton.gameObject.SetActive(equipedHeadItem);
-
-        chestSlotDesequipButton.onClick.RemoveAllListeners();
-        chestSlotDesequipButton.onClick.AddListener(delegate {DesequipEquipment(EquipmentType.Chest); });
-        chestSlotDesequipButton.gameObject.SetActive(equipedChestItem);
-
-        handsSlotDesequipButton.onClick.RemoveAllListeners();
-        handsSlotDesequipButton.onClick.AddListener(delegate {DesequipEquipment(EquipmentType.Hands); });
-        handsSlotDesequipButton.gameObject.SetActive(equipedHandsItem);
-
-        legsSlotDesequipButton.onClick.RemoveAllListeners();
-        legsSlotDesequipButton.onClick.AddListener(delegate {DesequipEquipment(EquipmentType.Legs); });
-        legsSlotDesequipButton.gameObject.SetActive(equipedLegsItem);
-
-        feetSlotDesequipButton.onClick.RemoveAllListeners();
-        feetSlotDesequipButton.onClick.AddListener(delegate {DesequipEquipment(EquipmentType.Feet); });
-        feetSlotDesequipButton.gameObject.SetActive(equipedFeetItem);
-
-    }
-
-    public void DesequipEquipment(EquipmentType equipmentType)
-        {
-            
-            // 3. renvoyer lequip dans linventaire du perso
-            // 4. refreshcontent a la fin pour actualiser les differents panels
-
-            if(IsFull())
-            {
-                Debug.Log("Inventaire plein impossible de desequipe");
-                return;
-            }
-
-            ItemData currentItem = null;
-
-            switch(equipmentType)
-            {
-                case EquipmentType.Head:
-                    currentItem = equipedHeadItem;
-                    equipedHeadItem = null;
-                    // 2. enlever le visuel de lequip de la colonne quip de linventaire.
-                    headSlotImage.sprite = emptySlotVisual;
-                    break;
-
-                case EquipmentType.Chest:
-                    currentItem = equipedChestItem;
-                    equipedChestItem = null;
-                    // 2. enlever le visuel de lequip de la colonne quip de linventaire.
-                    chestSlotImage.sprite = emptySlotVisual;
-                    break;
-
-                case EquipmentType.Hands:
-                    currentItem = equipedHandsItem;
-                    equipedHandsItem = null;
-                    // 2. enlever le visuel de lequip de la colonne quip de linventaire.
-                    handsSlotImage.sprite = emptySlotVisual;
-                    break;
-
-                case EquipmentType.Legs:
-                    currentItem = equipedLegsItem;
-                    equipedLegsItem = null;
-                    // 2. enlever le visuel de lequip de la colonne quip de linventaire.
-                    legsSlotImage.sprite = emptySlotVisual;
-                    break;
-
-                case EquipmentType.Feet:
-                    currentItem = equipedFeetItem;
-                    equipedFeetItem = null;
-                    // 2. enlever le visuel de lequip de la colonne quip de linventaire.
-                    feetSlotImage.sprite = emptySlotVisual;
-                    break;
-
-            }
-            // 1. enlever le visuel de lequip sur le perso. reactive les partie visuel quon avait desactiver dans le body du perso.
-            EquipmentLibraryItem equipmentLibraryItem = equipmentLibrary.content.Where(elem => elem.itemData == currentItem).First();
-
-        if(equipmentLibraryItem != null)
-        {
-
-        for (int i = 0; i < equipmentLibraryItem.elementsToDisable.Length; i++)
-        {
-            equipmentLibraryItem.elementsToDisable[i].SetActive(true);
-        }
-
-            equipmentLibraryItem.itemPrefab.SetActive(false);
-
-        }//......................................................................
-
-        AddItem(currentItem);
-
-        // 4. refreshcontent a la fin pour actualiser les differents panels
-        RefreshContent();
-     }
-
-     private void DisablePreviousEquipedEquipment(ItemData itemToDisable)
-   {
-         if(itemToDisable == null)
-       {
-             return;
-       }
-
-         // 1. enlever le visuel de lequip sur le perso. reactive les partie visuel quon avait desactiver dans le body du perso.
-            EquipmentLibraryItem equipmentLibraryItem = equipmentLibrary.content.Where(elem => elem.itemData == itemToDisable).First();
-
-        if(equipmentLibraryItem != null)
-           {
-
-        for (int i = 0; i < equipmentLibraryItem.elementsToDisable.Length; i++)
-        {
-            equipmentLibraryItem.elementsToDisable[i].SetActive(true);
-        }
-
-            equipmentLibraryItem.itemPrefab.SetActive(false);
-
-           }//......................................................................
-
-        AddItem(itemToDisable);
-     
-    }
-
+    
 
 
 }
