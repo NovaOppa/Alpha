@@ -7,6 +7,9 @@ public class ItemActionsSystem : MonoBehaviour
 
     [SerializeField]
     private Equipment equipment;
+
+    [SerializeField]
+    private PlayerStats playerStats;
   
   [Header("ITEMS ACTIONS SYSTEM VARIABLES")]
 
@@ -31,7 +34,7 @@ public class ItemActionsSystem : MonoBehaviour
     [HideInInspector]
     public ItemData itemCurrentlySelected;
 
-    
+  
 
     public void OpenActionPanel(ItemData item)
     {
@@ -71,7 +74,11 @@ public class ItemActionsSystem : MonoBehaviour
 
     public void UseActionButton()
     {
-        print("Use item : " + itemCurrentlySelected.name);
+        // chercher dans le script playerStats la fonction ConsumeItem (pour que l'item selectionner . applique l'effet de heal creer dans le script itemData).
+        playerStats.ConsumeItem(itemCurrentlySelected.healthEffect);
+        // chercher dans le script Inventory . la variable instance en public . pour utiliser la fonction RemoveItem pour supprimer (l'item selectionner').
+        Inventory.instance.RemoveItem(itemCurrentlySelected);
+
         CloseActionPanel();
     }
 
