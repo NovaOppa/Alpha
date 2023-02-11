@@ -36,8 +36,11 @@ public class Inventory : MonoBehaviour
 
 
     const int InventorySize = 24;
+
     private bool isOpen = false;
 
+  
+    
     
     private void Awake()
     {
@@ -125,7 +128,7 @@ public class Inventory : MonoBehaviour
         return content;
     }
 
-    private void OpenInventory()
+    public void OpenInventory()
     {
         inventoryPanel.SetActive(true);
         isOpen = true;
